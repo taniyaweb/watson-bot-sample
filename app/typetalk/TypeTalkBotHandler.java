@@ -30,28 +30,28 @@ public class TypeTalkBotHandler {
     public void execute(TypeTalkMessage typeTalk) {
                 
         if (isMatchTranslateLang(typeTalk)) {
-            callTranslateLang(typeTalk);
+            getTranslateLang(typeTalk);
             
         } else if (isMatchTranslateModel(typeTalk)) {
-            callTranslateModel(typeTalk);
+            getTranslateModel(typeTalk);
         
         } else if (isMatchTranslateStatus(typeTalk)) {
-            callTranslateStatus(typeTalk);
+            getTranslateStatus(typeTalk);
         
         } else if (isMatchTranslateOn(typeTalk)) {
-            callTranslateOn(typeTalk);
+            enableTranslation(typeTalk);
         
         } else if (isMatchTranslateOff(typeTalk)) {
-            callTranslateOff(typeTalk);
+            disableTranslation(typeTalk);
         
         } else if (isMatchTranslateLangOn(typeTalk)) {
-            callTranslateLangOn(typeTalk);
+            addTranslationLang(typeTalk);
         
         } else if (isMatchTranslateLangOff(typeTalk)) {
-            callTranslateLangOff(typeTalk);
+            removeTranslationLang(typeTalk);
         
         } else {
-            callTranslate(typeTalk);
+            getTranslation(typeTalk);
         }
     }
     private boolean isMatchTranslateLang(TypeTalkMessage typeTalk) {
@@ -102,12 +102,12 @@ public class TypeTalkBotHandler {
         }
         return false;
     }
-    private void callTranslateLang(TypeTalkMessage typeTalk) {
+    private void getTranslateLang(TypeTalkMessage typeTalk) {
         SupportLanguage supportlanguage = new SupportLanguage();
         String message = supportlanguage.getMessage();
         typeTalk.setResponseMessage(message);
     }
-    private void callTranslateStatus(TypeTalkMessage typeTalk) {
+    private void getTranslateStatus(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         StringBuilder buf = new StringBuilder();
         if (setting.isEnable()) {
@@ -127,12 +127,12 @@ public class TypeTalkBotHandler {
         typeTalk.setResponseMessage(buf.toString());
     }
     
-    private void callTranslateModel(TypeTalkMessage typeTalk) {
+    private void getTranslateModel(TypeTalkMessage typeTalk) {
         SupportModel supportModel = new SupportModel();
         String message = supportModel.getMessage(typeTalk.getLang());
         typeTalk.setResponseMessage(message);
     }
-    private void callTranslateLangOn(TypeTalkMessage typeTalk) {
+    private void addTranslationLang(TypeTalkMessage typeTalk) {
         SupportLanguage supportLang = new SupportLanguage();
         if (!supportLang.existLanguage(typeTalk.getLang())) {
             typeTalk.setResponseMessage(typeTalk.getLang() + " is not support language.(check with 'translate lang' command)");
@@ -146,7 +146,7 @@ public class TypeTalkBotHandler {
         String langName = supportLang.getLanguageName(typeTalk.getLang());
         typeTalk.setResponseMessage("set " + typeTalk.getLang() + "(" + langName + ") on");
     }
-    private void callTranslateLangOff(TypeTalkMessage typeTalk) {
+    private void removeTranslationLang(TypeTalkMessage typeTalk) {
         SupportLanguage supportLang = new SupportLanguage();
         if (!supportLang.existLanguage(typeTalk.getLang())) {
             typeTalk.setResponseMessage(typeTalk.getLang() + " is not support language.(check with 'translate lang' command)");
@@ -160,19 +160,19 @@ public class TypeTalkBotHandler {
         String langName = supportLang.getLanguageName(typeTalk.getLang());
         typeTalk.setResponseMessage("set " + typeTalk.getLang() + "(" + langName + ") off");
     }
-    private void callTranslateOn(TypeTalkMessage typeTalk) {
+    private void enableTranslation(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         setting.setEnable(true);
         TranslateSettingDao.save(setting);
         typeTalk.setResponseMessage("set translate on");
     }
-    private void callTranslateOff(TypeTalkMessage typeTalk) {
+    private void disableTranslation(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         setting.setEnable(false);
         TranslateSettingDao.save(setting);
         typeTalk.setResponseMessage("set translate off");
     }
-    private void callTranslate(TypeTalkMessage typeTalk) {
+    private void getTranslation(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         if (!setting.isEnable() || setting.getLang().size() == 0) {
             return;
