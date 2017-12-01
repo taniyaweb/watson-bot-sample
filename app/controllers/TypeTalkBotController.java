@@ -20,7 +20,7 @@ public class TypeTalkBotController extends Controller {
         
         // TypeTalkBotの処理
         TypeTalkBotHandler handler = new TypeTalkBotHandler();
-        handler.execute(message);
+        message = handler.execute(message);
         
         // jsonレスポンスを返却
         return ok(message.getResponseMessageJson());

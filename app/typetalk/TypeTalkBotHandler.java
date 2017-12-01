@@ -27,31 +27,31 @@ public class TypeTalkBotHandler {
      * 上記以外：翻訳設定に基づいて、翻訳結果を取得
      * @param typeTalk
      */
-    public void execute(TypeTalkMessage typeTalk) {
+    public TypeTalkMessage execute(TypeTalkMessage typeTalk) {
                 
         if (isMatchTranslateLang(typeTalk)) {
-            getTranslateLang(typeTalk);
+            return getTranslateLang(typeTalk);
             
         } else if (isMatchTranslateModel(typeTalk)) {
-            getTranslateModel(typeTalk);
+            return getTranslateModel(typeTalk);
         
         } else if (isMatchTranslateStatus(typeTalk)) {
-            getTranslateStatus(typeTalk);
+            return getTranslateStatus(typeTalk);
         
         } else if (isMatchTranslateOn(typeTalk)) {
-            enableTranslation(typeTalk);
+            return enableTranslation(typeTalk);
         
         } else if (isMatchTranslateOff(typeTalk)) {
-            disableTranslation(typeTalk);
+            return disableTranslation(typeTalk);
         
         } else if (isMatchTranslateLangOn(typeTalk)) {
-            addTranslationLang(typeTalk);
+            return addTranslationLang(typeTalk);
         
         } else if (isMatchTranslateLangOff(typeTalk)) {
-            removeTranslationLang(typeTalk);
+            return removeTranslationLang(typeTalk);
         
         } else {
-            getTranslation(typeTalk);
+            return getTranslation(typeTalk);
         }
     }
     private boolean isMatchTranslateLang(TypeTalkMessage typeTalk) {
@@ -102,12 +102,13 @@ public class TypeTalkBotHandler {
         }
         return false;
     }
-    private void getTranslateLang(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage getTranslateLang(TypeTalkMessage typeTalk) {
         SupportLanguage supportlanguage = new SupportLanguage();
         String message = supportlanguage.getMessage();
         typeTalk.setResponseMessage(message);
+        return typeTalk;
     }
-    private void getTranslateStatus(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage getTranslateStatus(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         StringBuilder buf = new StringBuilder();
         if (setting.isEnable()) {
@@ -125,18 +126,20 @@ public class TypeTalkBotHandler {
             buf.append("no lang setting");
         }
         typeTalk.setResponseMessage(buf.toString());
+        return typeTalk;
     }
     
-    private void getTranslateModel(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage getTranslateModel(TypeTalkMessage typeTalk) {
         SupportModel supportModel = new SupportModel();
         String message = supportModel.getMessage(typeTalk.getLang());
         typeTalk.setResponseMessage(message);
+        return typeTalk;
     }
-    private void addTranslationLang(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage addTranslationLang(TypeTalkMessage typeTalk) {
         SupportLanguage supportLang = new SupportLanguage();
         if (!supportLang.existLanguage(typeTalk.getLang())) {
             typeTalk.setResponseMessage(typeTalk.getLang() + " is not support language.(check with 'translate lang' command)");
-            return;
+            return typeTalk;
         }
         // 言語設定を追加
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
@@ -145,12 +148,13 @@ public class TypeTalkBotHandler {
         TranslateSettingDao.save(setting);
         String langName = supportLang.getLanguageName(typeTalk.getLang());
         typeTalk.setResponseMessage("set " + typeTalk.getLang() + "(" + langName + ") on");
+        return typeTalk;
     }
-    private void removeTranslationLang(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage removeTranslationLang(TypeTalkMessage typeTalk) {
         SupportLanguage supportLang = new SupportLanguage();
         if (!supportLang.existLanguage(typeTalk.getLang())) {
             typeTalk.setResponseMessage(typeTalk.getLang() + " is not support language.(check with 'translate lang' command)");
-            return;
+            return typeTalk;
         }
         // 言語設定を追加
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
@@ -159,23 +163,26 @@ public class TypeTalkBotHandler {
         TranslateSettingDao.save(setting);
         String langName = supportLang.getLanguageName(typeTalk.getLang());
         typeTalk.setResponseMessage("set " + typeTalk.getLang() + "(" + langName + ") off");
+        return typeTalk;
     }
-    private void enableTranslation(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage enableTranslation(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         setting.setEnable(true);
         TranslateSettingDao.save(setting);
         typeTalk.setResponseMessage("set translate on");
+        return typeTalk;
     }
-    private void disableTranslation(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage disableTranslation(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         setting.setEnable(false);
         TranslateSettingDao.save(setting);
         typeTalk.setResponseMessage("set translate off");
+        return typeTalk;
     }
-    private void getTranslation(TypeTalkMessage typeTalk) {
+    private TypeTalkMessage getTranslation(TypeTalkMessage typeTalk) {
         TranslateSetting setting = TranslateSettingDao.get(typeTalk.getTopicId());
         if (!setting.isEnable() || setting.getLang().size() == 0) {
-            return;
+            return typeTalk;
         }
         // 設定されている言語の翻訳結果を取得
         StringBuilder buf = new StringBuilder();
@@ -188,6 +195,7 @@ public class TypeTalkBotHandler {
             buf.append(translateMessage + System.lineSeparator());
         }
         typeTalk.setResponseMessage(buf.toString());
+        return typeTalk;
     }
 
 }
